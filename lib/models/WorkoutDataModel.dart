@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 enum SliderType { work, rest, exercise, rounds, reset }
 
 class WorkoutDataModel with ChangeNotifier {
-  int work = 5;
-  int rest = 5;
-  int exercise = 2;
-  int rounds = 2;
-  int reset = 5;
+  int work = 20;
+  int rest = 20;
+  int exercise = 10;
+  int rounds = 4;
+  int reset = 60;
 
   void changeValue(SliderType t, int v) {
     switch (t) {

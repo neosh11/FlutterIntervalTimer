@@ -293,23 +293,44 @@ Column _finishedDisplay(BuildContext context, ProgressModel model) {
 }
 
 Center radialProgressWithNumber(BuildContext context, ProgressModel model) {
+  var col = model.status == Status.breakTime ? Colors.green : Colors.red;
+  var remainingTime = getRemainingTime(model) - model.secondValue;
+
+  var wTime = 100.0;
+  switch (model.status) {
+    case Status.preWorkout:
+      wTime = timeBeforeStart.toDouble();
+      break;
+    case Status.workout:
+      wTime = model.workTime.toDouble();
+      break;
+    case Status.breakTime:
+      wTime = model.restTime.toDouble();
+      break;
+    case Status.reset:
+      wTime = model.resetTime.toDouble();
+      break;
+    case Status.finished:
+      break;
+  }
+  var filledRad = model.secondValue / wTime * 360;
   return Center(
     child: Container(
       width: 100,
       height: 100,
       child: CustomPaint(
-        painter:
-            MyPainter(model.secondValue / model.workTime * 360, Colors.red),
+        painter: MyPainter(filledRad, col),
         child: Container(
             child: Center(
                 child: Text(
-          '${getRemainingTime(model) - model.secondValue}',
-          style: Theme.of(context).textTheme.headline1,
+          '$remainingTime',
+          style: remainingTime > 99
+              ? Theme.of(context).textTheme.headline2
+              : Theme.of(context).textTheme.headline1,
         ))),
       ),
     ),
   );
-  ;
 }
 
 Column _ongoingDisplay(
