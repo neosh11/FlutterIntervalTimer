@@ -1,15 +1,26 @@
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
+// local
 import 'package:first/pages/IntervalTimerScreen/IntervalTimerScreen.dart';
 import 'package:first/tools/Time.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:async';
+
+// models
 import '../../models/WorkoutDataModel.dart';
 
 // Access Model data here and begin workout.
 
-enum Status { preWorkout, workout, breakTime, reset, finished }
+enum Status {
+  preWorkout,
+  workout,
+  breakTime,
+  reset,
+  finished,
+}
+enum AudioType { lightWeightBaby, restUp, threeTwoOne, hooray, countDown }
 
-const int timeBeforeStart = 10;
+const int timeBeforeStart = 5;
 
 class ProgressModel with ChangeNotifier {
   bool timerPaused = false;
@@ -29,18 +40,36 @@ class ProgressModel with ChangeNotifier {
   int rounds = 1;
   int resetTime = 1;
 
+  static AudioCache playerCache = AudioCache();
+  static AudioPlayer player = AudioPlayer();
+
+  playAudio(AudioType t) async {
+    String fileName = 'sounds/levelUp.mp3';
+    switch (t) {
+      case AudioType.lightWeightBaby:
+        fileName = ('sounds/lightweight.m4a');
+        break;
+
+      case AudioType.restUp:
+        fileName = ('sounds/restUp.m4a');
+        break;
+
+      case AudioType.countDown:
+        fileName = ('sounds/countDown.m4a');
+        break;
+
+      case AudioType.hooray:
+        fileName = ('sounds/finished.m4a');
+        break;
+
+      default:
+        fileName = ('sounds/levelUp.mp3');
+    }
+
+    player = await playerCache.play(fileName);
+  }
+
   void initValues(int work, int rest, int exercises, int rounds, int reset) {
-// Clear preexisting data.
-
-    // timerPaused = false;
-    // timerStarted = false;
-
-    // status = Status.preWorkout;
-    // currentRound = 1;
-    // currentExerciseRest = 1; // odd is exercise, odd is rest.
-    // secondValue = 0;
-    // totalTime = 0;
-
     workTime = work;
     restTime = rest;
     exerciseRest = exercises * 2 - 1;
@@ -62,12 +91,46 @@ class ProgressModel with ChangeNotifier {
 
   void pausePlayTimer() {
     timerPaused = !timerPaused;
+
+    if (timerPaused) {
+      player.pause();
+    } else {
+      player.resume();
+    }
     notifyListeners();
   }
 
   void cancelTimer() {
     timer.cancel();
+    player.pause();
     notifyListeners();
+  }
+
+  void changeStatus(Status s) {
+    switch (s) {
+      case Status.workout:
+        playAudio(AudioType.lightWeightBaby);
+        status = Status.workout;
+        secondValue = 0;
+        break;
+      case Status.breakTime:
+        playAudio(AudioType.restUp);
+
+        status = Status.breakTime;
+        secondValue = 0;
+        break;
+      case Status.reset:
+        playAudio(AudioType.restUp);
+
+        status = Status.reset;
+        secondValue = 0;
+        break;
+      case Status.finished:
+        playAudio(AudioType.hooray);
+        status = Status.finished;
+        cancelTimer();
+        break;
+    }
   }
 
   void incrementSecond() {
@@ -75,45 +138,55 @@ class ProgressModel with ChangeNotifier {
     totalTime++;
 
     if (status == Status.preWorkout) {
+      // countdown
+      if (timeBeforeStart > 3 && timeBeforeStart - secondValue == 3) {
+        playAudio(AudioType.countDown);
+      }
+
       if (secondValue == timeBeforeStart) {
-        // Move to exercise + reset second value.
-        status = Status.workout;
-        secondValue = 0;
+        changeStatus(Status.workout);
       }
     } else if (status == Status.workout) {
+      // countdown
+      if (workTime > 3 && workTime - secondValue == 3) {
+        playAudio(AudioType.countDown);
+      }
+
       if (secondValue == workTime) {
         // if last exercise
         if (currentExerciseRest == exerciseRest) {
           // If last round finsih
           if (currentRound == rounds) {
-            status = Status.finished;
-
-            // Cancel timer
-
-            cancelTimer();
+            changeStatus(Status.finished);
           } else {
             currentRound++;
             currentExerciseRest = 1;
-            secondValue = 0;
-            status = Status.reset;
+            changeStatus(Status.reset);
           }
         } else {
           // move to rest mode
           currentExerciseRest++;
-          status = Status.breakTime;
-          secondValue = 0;
+          changeStatus(Status.breakTime);
         }
       }
     } else if (status == Status.breakTime) {
+      // countdown
+      if (restTime > 3 && restTime - secondValue == 3) {
+        playAudio(AudioType.countDown);
+      }
+
       if (secondValue == restTime) {
-        status = Status.workout;
+        changeStatus(Status.workout);
         currentExerciseRest++;
-        secondValue = 0;
       }
     } else if (status == Status.reset) {
+      // countdown
+      if (resetTime > 3 && resetTime - secondValue == 3) {
+        playAudio(AudioType.countDown);
+      }
+
       if (resetTime == secondValue) {
-        status = Status.workout;
-        secondValue = 0;
+        changeStatus(Status.workout);
       }
     }
 
@@ -248,7 +321,7 @@ class WorkoutScreen extends StatelessWidget {
                             style: Theme.of(context).textTheme.headline1,
                           ),
                           Text(
-                            '${secondsToClockTime(calculateTotalTime(wOModel) + 10 - model.totalTime)} remaining',
+                            '${secondsToClockTime(calculateTotalTime(wOModel) + timeBeforeStart - model.totalTime)} remaining',
                             style: Theme.of(context).textTheme.subtitle1,
                           ),
                           Row(
