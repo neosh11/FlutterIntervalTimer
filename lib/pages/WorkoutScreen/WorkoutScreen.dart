@@ -248,9 +248,9 @@ Icon getPlayPauseButton(ProgressModel m) {
 String getDisplayString(ProgressModel m) {
   switch (m.status) {
     case Status.workout:
-      return "Working Out!";
+      return "Working!";
     case Status.breakTime:
-      return "Rest!";
+      return "Rest Up!";
     case Status.preWorkout:
       return "Get Ready!";
     case Status.reset:
@@ -325,7 +325,7 @@ Center radialProgressWithNumber(BuildContext context, ProgressModel model) {
                 child: Text(
           '$remainingTime',
           style: remainingTime > 99
-              ? Theme.of(context).textTheme.headline2
+              ? Theme.of(context).textTheme.headline3
               : Theme.of(context).textTheme.headline1,
         ))),
       ),

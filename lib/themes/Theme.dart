@@ -5,7 +5,7 @@ ThemeData theme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: Colors.red,
   // backgroundColor: Colors.black,
-  scaffoldBackgroundColor: Colors.black,
+  scaffoldBackgroundColor: Colors.amber,
 
   // Define the default font family.
   // fontFamily: 'Georgia',

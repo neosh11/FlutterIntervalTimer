@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'models/WorkoutDataModel.dart';
 
 // Screens
-import 'pages/EntryPointScreen/EntryPointScreen.dart';
 import 'pages/IntervalTimerScreen/IntervalTimerScreen.dart';
 import 'themes/Theme.dart';
 
@@ -20,6 +19,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'NeoMan Program', theme: theme, home: const EntryPointScreen());
+        title: 'NeoMan Program',
+        theme: theme,
+        home: const IntervalTimerScreen());
   }
 }

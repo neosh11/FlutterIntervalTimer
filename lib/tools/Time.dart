@@ -18,5 +18,5 @@ String secondsToClockTime(int s) {
     s = s % 60;
   }
 
-  return '${hh}:${mm}:${s}';
+  return '${hh > 0 ? hh.toString().padLeft(2, '0') + ':' : ''}${mm.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
 }

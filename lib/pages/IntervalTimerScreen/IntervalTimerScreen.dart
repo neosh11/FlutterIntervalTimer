@@ -15,12 +15,13 @@ class IntervalTimerScreen extends StatelessWidget {
     return Scaffold(
         body: Column(
       children: <Widget>[
+        const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 16, 4, 16),
           child: Consumer<WorkoutDataModel>(
             builder: (context, model, child) => Text(
               '${secondsToClockTime(calculateTotalTime(model))}',
-              style: Theme.of(context).textTheme.headline1,
+              style: Theme.of(context).textTheme.headline2,
             ),
           ),
 
