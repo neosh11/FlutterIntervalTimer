@@ -18,6 +18,70 @@ class CustomSlider extends StatefulWidget {
   State<CustomSlider> createState() => CustomSliderState();
 }
 
+Column sliderWidget(WorkoutDataModel model, String labelText,
+    SliderType sliderType, int min, int max) {
+  var givenValue = 0;
+
+  switch (sliderType) {
+    case SliderType.exercise:
+      givenValue = model.exercise;
+      break;
+
+    case SliderType.work:
+      givenValue = model.work;
+
+      break;
+    case SliderType.rest:
+      givenValue = model.rest;
+
+      break;
+    case SliderType.rounds:
+      givenValue = model.rounds;
+      break;
+    case SliderType.reset:
+      givenValue = model.reset;
+
+      break;
+  }
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Semantics(
+          label: labelText,
+          child: SizedBox(
+            width: 64,
+            height: 48,
+            child: TextField(
+              textAlign: TextAlign.center,
+              onSubmitted: (value) {
+                final newValue = double.tryParse(value);
+                if (newValue != null && newValue != givenValue) {
+                  model.changeValue(
+                      sliderType, newValue.clamp(min, max).toInt());
+                }
+              },
+              keyboardType: TextInputType.number,
+              controller: TextEditingController(
+                text: givenValue.toStringAsFixed(0),
+              ),
+            ),
+          ),
+        ),
+        Text(labelText)
+      ]),
+      Slider(
+        value: givenValue.toDouble(),
+        min: min.toDouble(),
+        max: max.toDouble(),
+        onChanged: (value) {
+          model.changeValue(sliderType, value.toInt());
+        },
+      ),
+    ],
+  );
+}
+
 class CustomSliderState extends State<CustomSlider> {
   @override
   Widget build(BuildContext context) {
@@ -28,193 +92,11 @@ class CustomSliderState extends State<CustomSlider> {
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Semantics(
-                        label: 'Work',
-                        child: SizedBox(
-                          width: 64,
-                          height: 48,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            onSubmitted: (value) {
-                              final newValue = double.tryParse(value);
-                              if (newValue != null && newValue != model.work) {
-                                model.changeValue(SliderType.work,
-                                    newValue.clamp(1, 300).toInt());
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: TextEditingController(
-                              text: model.work.toStringAsFixed(0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text('Work')
-                    ]),
-                    Slider(
-                      value: model.work.toDouble(),
-                      min: 1,
-                      max: 300,
-                      onChanged: (value) {
-                        model.changeValue(SliderType.work, value.toInt());
-                      },
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Semantics(
-                        label: 'Rest',
-                        child: SizedBox(
-                          width: 64,
-                          height: 48,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            onSubmitted: (value) {
-                              final newValue = double.tryParse(value);
-                              if (newValue != null && newValue != model.rest) {
-                                model.changeValue(SliderType.rest,
-                                    newValue.clamp(1, 300).toInt());
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: TextEditingController(
-                              text: model.rest.toStringAsFixed(0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text('Rest')
-                    ]),
-                    Slider(
-                      value: model.rest.toDouble(),
-                      min: 1,
-                      max: 300,
-                      onChanged: (value) {
-                        model.changeValue(SliderType.rest, value.toInt());
-                      },
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Semantics(
-                        label: 'Exercise',
-                        child: SizedBox(
-                          width: 64,
-                          height: 48,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            onSubmitted: (value) {
-                              final newValue = double.tryParse(value);
-                              if (newValue != null &&
-                                  newValue != model.exercise) {
-                                model.changeValue(SliderType.exercise,
-                                    newValue.clamp(1, 30).toInt());
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: TextEditingController(
-                              text: model.exercise.toStringAsFixed(0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text('Exercise')
-                    ]),
-                    Slider(
-                      value: model.exercise.toDouble(),
-                      min: 1,
-                      max: 30,
-                      onChanged: (value) {
-                        model.changeValue(SliderType.exercise, value.toInt());
-                      },
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Semantics(
-                        label: 'Rounds',
-                        child: SizedBox(
-                          width: 64,
-                          height: 48,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            onSubmitted: (value) {
-                              final newValue = double.tryParse(value);
-                              if (newValue != null &&
-                                  newValue != model.rounds) {
-                                model.changeValue(SliderType.rounds,
-                                    newValue.clamp(1, 30).toInt());
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: TextEditingController(
-                              text: model.rounds.toStringAsFixed(0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text('Rounds')
-                    ]),
-                    Slider(
-                      value: model.rounds.toDouble(),
-                      min: 1,
-                      max: 30,
-                      onChanged: (value) {
-                        model.changeValue(SliderType.rounds, value.toInt());
-                      },
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Semantics(
-                        label: 'Reset',
-                        child: SizedBox(
-                          width: 64,
-                          height: 48,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            onSubmitted: (value) {
-                              final newValue = double.tryParse(value);
-                              if (newValue != null && newValue != model.reset) {
-                                model.changeValue(SliderType.reset,
-                                    newValue.clamp(1, 300).toInt());
-                              }
-                            },
-                            keyboardType: TextInputType.number,
-                            controller: TextEditingController(
-                              text: model.reset.toStringAsFixed(0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text('Reset')
-                    ]),
-                    Slider(
-                      value: model.reset.toDouble(),
-                      min: 1,
-                      max: 300,
-                      onChanged: (value) {
-                        model.changeValue(SliderType.reset, value.toInt());
-                      },
-                    ),
-                  ],
-                ),
+                sliderWidget(model, 'Work', SliderType.work, 1, 300),
+                sliderWidget(model, 'Rest', SliderType.rest, 1, 300),
+                sliderWidget(model, 'Exercise', SliderType.exercise, 1, 30),
+                sliderWidget(model, 'Rounds', SliderType.rounds, 1, 30),
+                sliderWidget(model, 'Reset', SliderType.reset, 1, 300),
               ],
             )
             //
