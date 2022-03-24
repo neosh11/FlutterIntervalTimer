@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 // local
 import 'package:first/pages/IntervalTimerScreen/IntervalTimerScreen.dart';
 import 'package:first/tools/Time.dart';
-
+import 'RadialProgress.dart';
 // models
 import '../../models/WorkoutDataModel.dart';
 
@@ -260,6 +260,126 @@ String getDisplayString(ProgressModel m) {
   }
 }
 
+Column _finishedDisplay(BuildContext context, ProgressModel model) {
+  return (Column(children: [
+    Text(
+      getDisplayString(model),
+      style: Theme.of(context).textTheme.headline2,
+    ),
+    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      RawMaterialButton(
+        // Play Button
+        onPressed: () {
+          model.cancelTimer();
+          // naviage off
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const IntervalTimerScreen()),
+          );
+        },
+        elevation: 2.0,
+        fillColor: Colors.red,
+        child: Icon(
+          Icons.cancel,
+          color: Colors.white,
+          size: 35.0,
+        ),
+        padding: EdgeInsets.all(15.0),
+        shape: CircleBorder(),
+      ),
+    ])
+  ]));
+}
+
+Center radialProgressWithNumber(BuildContext context, ProgressModel model) {
+  return Center(
+    child: Container(
+      width: 100,
+      height: 100,
+      child: CustomPaint(
+        painter:
+            MyPainter(model.secondValue / model.workTime * 360, Colors.red),
+        child: Container(
+            child: Center(
+                child: Text(
+          '${getRemainingTime(model) - model.secondValue}',
+          style: Theme.of(context).textTheme.headline1,
+        ))),
+      ),
+    ),
+  );
+  ;
+}
+
+Column _ongoingDisplay(
+    BuildContext context, ProgressModel model, WorkoutDataModel wOModel) {
+  return (Column(children: [
+    const SizedBox(height: 80),
+
+    Text(
+      getDisplayString(model),
+      style: Theme.of(context).textTheme.headline2,
+    ),
+    const SizedBox(height: 100),
+    radialProgressWithNumber(context, model),
+
+    const SizedBox(height: 100),
+    Text(
+      '${secondsToClockTime(calculateTotalTime(wOModel) + timeBeforeStart - model.totalTime)} remaining',
+      style: Theme.of(context).textTheme.subtitle1,
+    ),
+    const SizedBox(height: 50),
+
+    // Button Row
+    _buttonRow(context, model)
+  ]));
+}
+
+Row _buttonRow(BuildContext context, ProgressModel model) {
+  return Row(
+      // mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        RawMaterialButton(
+          // Play Button
+          onPressed: () {
+            model.pausePlayTimer();
+          },
+          elevation: 2.0,
+          fillColor: Colors.red,
+          child: Icon(
+            (model.timerPaused ? Icons.play_arrow : Icons.pause),
+            color: Colors.white,
+            size: 35.0,
+          ),
+          padding: EdgeInsets.all(15.0),
+          shape: CircleBorder(),
+        ),
+        RawMaterialButton(
+          // Play Button
+          onPressed: () {
+            model.cancelTimer();
+            // naviage off
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const IntervalTimerScreen()),
+            );
+          },
+          elevation: 2.0,
+          fillColor: Colors.red,
+          child: Icon(
+            Icons.cancel,
+            color: Colors.white,
+            size: 35.0,
+          ),
+          padding: EdgeInsets.all(15.0),
+          shape: CircleBorder(),
+        ),
+      ]);
+}
+
 // Local Model needed
 class WorkoutScreen extends StatelessWidget {
   const WorkoutScreen({Key? key}) : super(key: key);
@@ -277,97 +397,9 @@ class WorkoutScreen extends StatelessWidget {
         create: (context) => progressModel,
         child: Consumer<ProgressModel>(
             builder: (context, model, child) => Scaffold(
-                  backgroundColor: getBackgroundColor(model.status),
-                  body: model.status == Status.finished
-                      ? (Column(children: [
-                          Text(
-                            getDisplayString(model),
-                            style: Theme.of(context).textTheme.headline2,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RawMaterialButton(
-                                  // Play Button
-                                  onPressed: () {
-                                    model.cancelTimer();
-                                    // naviage off
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const IntervalTimerScreen()),
-                                    );
-                                  },
-                                  elevation: 2.0,
-                                  fillColor: Colors.red,
-                                  child: Icon(
-                                    Icons.cancel,
-                                    color: Colors.white,
-                                    size: 35.0,
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  shape: CircleBorder(),
-                                ),
-                              ])
-                        ]))
-                      : (Column(children: [
-                          Text(
-                            getDisplayString(model),
-                            style: Theme.of(context).textTheme.headline2,
-                          ),
-                          Text(
-                            '${getRemainingTime(model) - model.secondValue}',
-                            style: Theme.of(context).textTheme.headline1,
-                          ),
-                          Text(
-                            '${secondsToClockTime(calculateTotalTime(wOModel) + timeBeforeStart - model.totalTime)} remaining',
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RawMaterialButton(
-                                  // Play Button
-                                  onPressed: () {
-                                    model.pausePlayTimer();
-                                  },
-                                  elevation: 2.0,
-                                  fillColor: Colors.red,
-                                  child: Icon(
-                                    (model.timerPaused
-                                        ? Icons.play_arrow
-                                        : Icons.pause),
-                                    color: Colors.white,
-                                    size: 35.0,
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  shape: CircleBorder(),
-                                ),
-                                RawMaterialButton(
-                                  // Play Button
-                                  onPressed: () {
-                                    model.cancelTimer();
-                                    // naviage off
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const IntervalTimerScreen()),
-                                    );
-                                  },
-                                  elevation: 2.0,
-                                  fillColor: Colors.red,
-                                  child: Icon(
-                                    Icons.cancel,
-                                    color: Colors.white,
-                                    size: 35.0,
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  shape: CircleBorder(),
-                                ),
-                              ])
-                        ])),
-                )));
+                backgroundColor: getBackgroundColor(model.status),
+                body: model.status == Status.finished
+                    ? _finishedDisplay(context, model)
+                    : _ongoingDisplay(context, model, wOModel))));
   }
 }
