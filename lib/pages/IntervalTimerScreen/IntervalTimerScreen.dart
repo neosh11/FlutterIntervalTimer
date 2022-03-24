@@ -1,29 +1,10 @@
+import 'package:first/pages/WorkoutScreen/WorkoutScreen.dart';
+import 'package:first/tools/Time.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/WorkoutDataModel.dart';
 import 'CustomSlider.dart';
-
-int calculateTotalTime(WorkoutDataModel m) {
-  return m.rounds * ((m.exercise) * m.work + (m.exercise - 1) * m.rest) +
-      (m.rounds - 1) * m.reset;
-}
-
-String secondsToClockTime(int s) {
-  int hh = 0;
-  int mm = 0;
-
-  if (s > 3600) {
-    hh = (s ~/ 3600);
-    s = s % 3600;
-  }
-  if (s > 60) {
-    mm = (s ~/ 60);
-    s = s % 60;
-  }
-
-  return '${hh}:${mm}:${s}';
-}
 
 class IntervalTimerScreen extends StatelessWidget {
   const IntervalTimerScreen({Key? key}) : super(key: key);
@@ -53,6 +34,11 @@ class IntervalTimerScreen extends StatelessWidget {
           // Play Button
           onPressed: () {
             // Start Workout.
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WorkoutScreen()),
+            );
           },
           elevation: 2.0,
           fillColor: Colors.red,
